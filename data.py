@@ -2,20 +2,33 @@
 # generates a list of tuples that contain node ids and (x,y) coordinates
 # writes data to a file
 
+import csv
 import random
 
 def make_graph(num_nodes, x_max, y_max):
-  graph = []
-  for i in range(0, num_nodes):
-      x = random.randint(1,x_max)
-      y = random.randint(1,y_max)
-      graph.append((i + 1, (x,y)))
-  return graph
+    """
+    Generates a list of nodes and coordinates
+    """
+    graph = []
+    for i in range(0, num_nodes):
+        x = random.randint(1,x_max)
+        y = random.randint(1,y_max)
+        graph.append([i,x,y])
+    return graph
 
-def write_graph_csv(graph_list, file_name):
-    f = open(file_name, "w+")
-    f.write('{}'.format(graph_list))
+
+def make_csv(data_list):
+    """
+    Writes data to csv file
+    """
+    with open("data.csv", "w+") as f:
+        writer = csv.writer(f)
+        writer.writerows(data_list)
     f.close()
+
+
+
+
 
 ###################################################
 
@@ -25,4 +38,5 @@ y_max = 100
 file_name = "data.txt"
 
 graph = make_graph(num_nodes, x_max, y_max)
-write_graph_csv(graph, file_name)
+print(graph)
+make_csv(graph)
