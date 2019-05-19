@@ -1,5 +1,5 @@
 # generate_graph.py
-# generates a list of (x,y) coordinates
+# generates a list of tuples that contain node ids and (x,y) coordinates
 # writes data to a file
 
 import random
@@ -14,8 +14,6 @@ def make_graph(num_nodes, x_max, y_max):
 
 def write_graph_csv(graph_list, file_name):
     f = open(file_name, "w+")
-    # for i in range(0, len(graph_list)):
-    #     f.write("({},{})\n".format(i + 1, graph_list[i]))
     f.write('{}'.format(graph_list))
     f.close()
 
@@ -24,7 +22,7 @@ def write_graph_csv(graph_list, file_name):
 num_nodes = 10
 x_max = 100
 y_max = 100
-file_name = "data.csv"
+file_name = "data.txt"
 
 graph = make_graph(num_nodes, x_max, y_max)
 write_graph_csv(graph, file_name)

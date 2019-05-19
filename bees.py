@@ -8,5 +8,5 @@ def get_data(file_name):
     return data
 
 
-data = get_data("data.csv")
+data = get_data("data.txt")
 print(data)
