@@ -26,17 +26,14 @@ def make_csv(data_list):
         writer.writerows(data_list)
     f.close()
 
+#==============================================
 
+def run():
+    num_nodes = 10
+    x_max = 100
+    y_max = 100
+    file_name = "data.txt"
 
-
-
-###################################################
-
-num_nodes = 10
-x_max = 100
-y_max = 100
-file_name = "data.txt"
-
-graph = make_graph(num_nodes, x_max, y_max)
-print(graph)
-make_csv(graph)
+    graph = make_graph(num_nodes, x_max, y_max)
+    # print(graph)
+    make_csv(graph)
