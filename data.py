@@ -10,10 +10,11 @@ def make_graph(num_nodes, x_max, y_max):
     Generates a list of nodes and coordinates
     """
     graph = []
-    for i in range(0, num_nodes):
+    for i in range(1, num_nodes + 1):
         x = random.randint(1,x_max)
         y = random.randint(1,y_max)
         graph.append([i,x,y])
+        print(i)
     return graph
 
 
@@ -32,8 +33,10 @@ def run():
     num_nodes = 10
     x_max = 100
     y_max = 100
-    file_name = "data.txt"
+    file_name = "data.csv"
 
     graph = make_graph(num_nodes, x_max, y_max)
     # print(graph)
     make_csv(graph)
+
+run()

@@ -16,13 +16,7 @@ class Bee:
     random.shuffle(randomized_path)
     self.path = randomized_path
     self.distance = get_total_distance_of_path(self.path)
-
-
-def generate_node_set(num_nodes):
-    """
-    Generates a randomized list of nodes
-    """
-    return random.sample(range(1, num_nodes * 100), num_nodes)
+    self.iter = 0 # number of iterations on current solution
 
 
 def read_data_from_csv(file_name):
@@ -35,14 +29,14 @@ def read_data_from_csv(file_name):
         data_list = [[int(s) for s in row.split(',')] for row in f]
     return data_list
 
-
-def convert_data_to_coords(data_row):
-    """
-    Converts the x and y coordinate values from data_list
-    into a set of coordinates (i.e. a point)
-    """
-    return((data_row[1],data_row[2]))
-
+#
+# def convert_data_to_coords(data_row):
+#     """
+#     Converts the x and y coordinate values from data_list
+#     into a set of coordinates (i.e. a point)
+#     """
+#     return((data_row[1],data_row[2]))
+#
 
 def get_distance_between_nodes(n1, n2):
     """
@@ -51,15 +45,13 @@ def get_distance_between_nodes(n1, n2):
     return distance.euclidean(n1, n2)
 
 
-# def get_total_distance_of_path(path, data_list):
-#     """
-#     Calculates the total distance of an individual bee's path
-#     """
-#     coordinates = [convert_data_to_coords(data_list[i]) for i in path]
-#     distance = 0
-#     for i in range(0,len(coordinates) - 2):
-#         distance += get_distance_between_nodes(coordinates[i], coordinates[i+1])
-#     return distance
+def make_distance_table(data_list):
+    """
+    Creates a table that stores distance between every pair of nodes
+    """
+    length = len(data_list)
+    table = [[get_distance_between_nodes(data_list[i],data_list[j]) for i in range(0, length)] for j in range(0, length)]
+    return table
 
 
 def get_total_distance_of_path(path):
@@ -94,6 +86,7 @@ def assign_roles(hive, role_percentiles):
         hive[i].role = 'F'
     return hive
 
+
 def forage(bee):
     """
     Worker bee behavior, iteratively refines a potential shortest path
@@ -107,6 +100,7 @@ def forage(bee):
         bee.distance = get_total_distance_of_path(new_path)
     return bee.distance
 
+
 def scout(bee):
     """
     Scout bee behavior, abandons unsuccessful path for new random path
@@ -116,6 +110,7 @@ def scout(bee):
     random.shuffle(new_path)
     bee.path = new_path
     bee.role = 'F'
+    ## Alternatively, could select randomly from best solutions?
 
 
 def manage(bee, best_distance, threshold):
@@ -129,20 +124,20 @@ def manage(bee, best_distance, threshold):
 
 
 def run():
-    num_nodes = 100
-    population = 100
+    # num_nodes = 100
+    population = 10
     onlooker_percent = 0.5
     forager_percent = 0.5
     percentiles = [onlooker_percent, forager_percent]
     threshold = 2
 
-    # graph_data = read_data_from_csv("data.csv")
-    node_set = generate_node_set(num_nodes)
-    sorted_node_set = list(node_set)
-    sorted_node_set.sort()
-    optimal_distance = get_total_distance_of_path(sorted_node_set)
-    print("Sorted node set: {}".format(sorted_node_set))
-    print("Optimal distance: {}".format(optimal_distance))
+    graph_data = read_data_from_csv("data.csv")
+    # node_set = generate_node_set(num_nodes)
+    # sorted_node_set = list(node_set)
+    # sorted_node_set.sort()
+    # optimal_distance = get_total_distance_of_path(sorted_node_set)
+    # print("Sorted node set: {}".format(sorted_node_set))
+    # print("Optimal distance: {}".format(optimal_distance))
 
     hive = initialize_hive(population, node_set)
     hive = assign_roles(hive, percentiles)
@@ -175,7 +170,11 @@ def run():
 
 #===============#
 
-run()
+#run()
+data = read_data_from_csv("data.csv")
+table = make_distance_table(data)
+for row in table:
+    print(row)
 
 
 
