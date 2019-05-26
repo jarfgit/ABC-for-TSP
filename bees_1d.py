@@ -62,11 +62,27 @@ def forage(bee):
     by examining random neighbor indices
     """
     random_idx = random.randint(0, len(bee.path) - 2)
+    # print("CURRENT PATH: {}".format(bee.path))
+    # print("CURRENT PATH DISTANCE: {}".format(bee.distance))
+    #
+    # # This is basically bubble sort :(
+    # new_path = list(bee.path)
+    # new_path[random_idx], new_path[random_idx + 1] = new_path[random_idx + 1], new_path[random_idx]
+    # new_path_distance = get_total_distance_of_path(new_path)
+    # print("NEW PATH: {}".format(new_path))
+    #
+    # print("NEW PATH DISTANCE: {}".format(new_path_distance))
+    # if new_path_distance < bee.distance:
+    #     bee.path = new_path
+    #     bee.distance = new_path_distance
+    #     print("NEW PATH SWAPPED: {}".format(new_path_distance))
+
     if bee.path[random_idx] > bee.path[random_idx + 1]:
         new_path = list(bee.path)
         new_path[random_idx], new_path[random_idx + 1] = new_path[random_idx + 1], new_path[random_idx]
         bee.path = new_path
         bee.distance = get_total_distance_of_path(new_path)
+    print("BEE PATH: {}".format(bee.distance))
     return bee.distance
 
 def scout(bee):
@@ -91,10 +107,10 @@ def manage(bee, best_distance, threshold):
 
 
 def run():
-    num_nodes = 100
-    population = 100
-    onlooker_percent = 0.5
-    forager_percent = 0.5
+    num_nodes = 20
+    population = 20
+    onlooker_percent = .5
+    forager_percent = .5
     percentiles = [onlooker_percent, forager_percent]
     threshold = 2
 
@@ -111,7 +127,7 @@ def run():
 
     best_distance = sys.maxsize
     best_path = node_set
-    cycle_limit = 10000
+    cycle_limit = 11000
     cycle = 0
 
     while cycle < cycle_limit:
