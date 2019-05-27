@@ -2,6 +2,25 @@
 # A solution to the Traveling Salesman Problem
 # that mimics the foraging behavior of honey bees
 
+# MIN PATH DISTANCE:
+# data10.csv = 262.147
+# data20.csv = 592.594
+
+# CYCLE: 8636
+# PATH: [14, 12, 9, 8, 2, 0, 4, 15, 19, 16, 7, 10, 5, 17, 13, 6, 3, 11, 1, 18]
+# DISTANCE: 595.663
+# BEE: 6
+
+# CYCLE: 18185
+# PATH: [7, 19, 15, 3, 13, 17, 8, 9, 12, 14, 18, 2, 4, 5, 10, 11, 1, 0, 6, 16]
+# DISTANCE: 518.534
+# BEE: 34
+
+# CYCLE: 17264
+# PATH: [3, 0, 4, 6, 16, 2, 5, 10, 11, 1, 18, 14, 8, 9, 12, 17, 13, 19, 7, 15]
+# DISTANCE: 512.567
+# BEE: 35
+
 import csv
 import math
 import random
@@ -13,15 +32,18 @@ from scipy.spatial import distance
 #   - Should cycle be per bee? How should it increment?? What if bee is close???
 
 class Bee:
-  def __init__(self, node_set, table):
-    self.role = 'F'
-    # creates an initial randomized path for each bee to explore
-    randomized_path = list(node_set)
-    random.shuffle(randomized_path)
-    self.path = randomized_path
-    self.distance = get_total_distance_of_path(self.path, table)
-    self.cycle = 0 # number of iterations on current solution
+    def __init__(self, node_set):
+        self.role = ''
+        self.path = list(node_set) # stores all nodes in each bee, will randomize foragers
+        self.distance = 0
+        self.cycle = 0 # number of iterations on current solution
 
+# class Bee:
+#     def __init__(self):
+#         self.role = ''
+#         self.path = []
+#         self.distance = 0
+#         self.cycle = 0 # number of iterations on current solution
 
 def read_data_from_csv(file_name):
     """
@@ -68,13 +90,33 @@ def get_total_distance_of_path(path, table):
     distance = sum([table[i[0]][i[1]] for i in coordinates])
     return round(distance, 3)
 
-def initialize_hive(population, data, table):
+
+def initialize_hive(population, data):
     """
     Initializes a hive and populates it with bees
     Bees will have a randomized path attribute
     """
     path = [x[0] for x in data]
-    hive = [Bee(path, table) for i in range (0, population)]
+    hive = [Bee(path) for i in range (0, population)]
+    return hive
+
+
+def assign_roles(hive, role_percentiles, table):
+    """
+    Assigns initial roles based on role percentiles
+    to each bee in the hive.
+    Assigns randomized path to forager bees.
+    """
+    population = len(hive)
+    onlooker_count = math.floor(population * role_percentiles[0])
+    forager_count = math.floor(population * role_percentiles[1])
+
+    for i in range(0, onlooker_count):
+        hive[i].role = 'O'
+    for i in range(onlooker_count, (onlooker_count + forager_count)):
+        hive[i].role = 'F'
+        random.shuffle(hive[i].path)
+        hive[i].distance = get_total_distance_of_path(hive[i].path, table)
     return hive
 
 
@@ -131,34 +173,68 @@ def waggle_dance(hive, table, forager_limit):
             hive[i].role = 'F'
     return distances, paths
 
-def overlooker(hive, distances, paths):
+def overlooker(hive, distances, paths, scout_percentage):
     """
     Overlooker chooses best results,
     assigns new bee with least promising path to be a scout.
     """
     min_distance = min(distances)
     min_index = distances.index(min_distance)
-    max_index = distances.index(max(distances))
-    hive[max_index].role = 'S'
+
+    # get new scout bee indices
+    scout_num = int(scout_percentage * len(distances))
+    sort_distances = list(distances)
+    sort_distances.sort()
+    scouts = sort_distances[-scout_num - 1:]
+    for scout in scouts:
+        i = distances.index(scout)
+        hive[i].role = 'S'
     return min_distance, min_index
+
+#
+# def overlooker(hive, distances, paths, scout_percentage):
+#     """
+#     Overlooker chooses best results,
+#     assigns new bee with least promising path to be a scout.
+#     """
+#     min_distance = min(distances)
+#     min_index = distances.index(min_distance)
+#
+#     # assign all bees to pursue best path:
+#     assign_paths(hive, paths[min_index])
+#     # get new scout bee indices
+#     scout_num = int(scout_percentage * len(distances))
+#     sort_distances = list(distances)
+#     sort_distances.sort()
+#     scouts = sort_distances[-scout_num - 1:]
+#     for scout in scouts:
+#         i = distances.index(scout)
+#         hive[i].role = 'S'
+#     return min_distance, min_index
 
 
 def main():
-    data = read_data_from_csv("data.csv")
-    table = make_distance_table(data)
-    # population = len(data) * 2
-    population = len(data)
+    data = read_data_from_csv("data10.csv")
+    #data = read_data_from_csv("sahara.csv")
 
-    hive = initialize_hive(population, data, table)
+    table = make_distance_table(data)
+    population = 30
+    forager_percent = 1.0
+    onlooker_percent = 0
+    role_percentiles = [onlooker_percent, forager_percent]
+    scout_percentile = 0.05
+
+    hive = initialize_hive(population, data)
+    assign_roles(hive, role_percentiles, table)
     best_distance = sys.maxsize
     best_path = data
-    forager_limit = 100
-    cycle_limit = 10000
+    forager_limit = 10 * len(data)
+    cycle_limit = 2500
     cycle = 0
 
     while cycle < cycle_limit:
         distances, paths = waggle_dance(hive, table, forager_limit)
-        min_distance, min_index = overlooker(hive, distances, paths)
+        min_distance, min_index = overlooker(hive, distances, paths, scout_percentile)
         if min_distance < best_distance:
             best_distance = min_distance
             best_path = list(paths[min_index])

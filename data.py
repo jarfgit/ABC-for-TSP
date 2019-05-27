@@ -17,11 +17,11 @@ def make_graph(num_nodes, x_max, y_max):
     return graph
 
 
-def make_csv(data_list):
+def make_csv(data_list, file_name):
     """
     Writes data to csv file
     """
-    with open("data.csv", "w+") as f:
+    with open(file_name, "w+") as f:
         writer = csv.writer(f)
         writer.writerows(data_list)
     f.close()
@@ -29,12 +29,12 @@ def make_csv(data_list):
 #==============================================
 
 def run():
-    num_nodes = 10
+    num_nodes = 20
     x_max = 100
     y_max = 100
-    file_name = "data.csv"
+    file_name = "data20.csv"
 
     graph = make_graph(num_nodes, x_max, y_max)
-    make_csv(graph)
+    make_csv(graph, file_name)
 
 run()
