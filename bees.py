@@ -41,9 +41,10 @@ class Bee:
 # class Bee:
 #     def __init__(self):
 #         self.role = ''
-#         self.path = []
+#         self.path = [] #
 #         self.distance = 0
 #         self.cycle = 0 # number of iterations on current solution
+
 
 def read_data_from_csv(file_name):
     """
@@ -191,6 +192,18 @@ def overlooker(hive, distances, paths, scout_percentage):
         hive[i].role = 'S'
     return min_distance, min_index
 
+def recruit(hive, best_path, best_distance, table, forager_limit):
+    distances = []
+    paths = []
+    for i in range(0, len(hive)):
+        if hive[i].role == 'O':
+            hive[i].path = list(best_path)
+            hive[i].distance = best_distance
+            distance, path = forage(hive[i], table, forager_limit)
+            distances.insert(i, distance)
+            paths.insert(i, path)
+    return distances, paths
+
 #
 # def overlooker(hive, distances, paths, scout_percentage):
 #     """
@@ -219,8 +232,8 @@ def main():
 
     table = make_distance_table(data)
     population = 30
-    forager_percent = 1.0
-    onlooker_percent = 0
+    forager_percent = 0.5
+    onlooker_percent = 0.5
     role_percentiles = [onlooker_percent, forager_percent]
     scout_percentile = 0.05
 
@@ -234,7 +247,17 @@ def main():
 
     while cycle < cycle_limit:
         distances, paths = waggle_dance(hive, table, forager_limit)
+        print(distances)
         min_distance, min_index = overlooker(hive, distances, paths, scout_percentile)
+        if min_distance < best_distance:
+            best_distance = min_distance
+            best_path = list(paths[min_index])
+            print("CYCLE: {}".format(cycle))
+            print("PATH: {}".format(best_path))
+            print("DISTANCE: {}".format(best_distance))
+            print("BEE: {}".format(min_index))
+            print("\n")
+        distances, paths = recruit(hive, best_path, best_distance, table, forager_limit)
         if min_distance < best_distance:
             best_distance = min_distance
             best_path = list(paths[min_index])
