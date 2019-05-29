@@ -29,10 +29,10 @@ def make_csv(data_list, file_name):
 #==============================================
 
 def run():
-    num_nodes = 20
+    num_nodes = 12
     x_max = 100
     y_max = 100
-    file_name = "data20.csv"
+    file_name = "data{}.csv".format(num_nodes)
 
     graph = make_graph(num_nodes, x_max, y_max)
     make_csv(graph, file_name)
