@@ -2,27 +2,6 @@
 # A solution to the Traveling Salesman Problem
 # that mimics the foraging behavior of honey bees
 
-# MIN PATH DISTANCE:
-# data10.csv = 262.147
-# data20.csv = 509.13
-
-# 15 nodes,1000 X 1000 dimensions
-# CYCLE: 2100
-# PATH: [3, 1, 4, 9, 2, 11, 12, 10, 0, 6, 5, 8, 14, 7, 13]
-# DISTANCE: 3783.056
-# BEE: F
-
-# CYCLE: 1000
-# PATH: [12, 10, 0, 6, 5, 8, 14, 7, 13, 3, 1, 4, 9, 2, 11]
-# DISTANCE: 3783.056
-# BEE: F
-
-# CYCLE: 13951
-# PATH: [1, 2, 17, 18, 14, 8, 9, 12, 13, 15, 16, 19, 5, 0, 4, 3, 6, 7, 10, 11]
-# DISTANCE: 509.13
-# BEE: F
-
-
 
 import csv
 import math
@@ -178,7 +157,6 @@ def waggle(hive, best_distance, table, forager_limit, scout_count):
 
         elif hive[i].role == 'S':
             scout(hive[i], table)
-            hive[i].role = 'F'
 
     # after processing all bees, set worst performers to scout
     results.sort(reverse = True, key=lambda tup: tup[1])
@@ -187,53 +165,12 @@ def waggle(hive, best_distance, table, forager_limit, scout_count):
         hive[new_scout].role = 'S'
     return best_distance, best_path
 
-# def waggle(hive, best_distance, table, forager_limit):
-#     """
-#     Captures results from work of forager bees,
-#     chooses new random path for scouts to explore,
-#     returns results for overlookers to assess.
-#     """
-#     best_path = []
-#     worst_distance = best_distance
-#     worst_bee = 0
-#
-#     for i in range(0, len(hive)):
-#         if hive[i].role == 'F':
-#             distance, path = forage(hive[i], table, forager_limit)
-#             if distance < best_distance:
-#                 best_distance = distance
-#                 best_path = list(hive[i].path)
-#             elif distance > worst_distance:
-#                 worst_distance = distance
-#                 worst_bee = i
-#
-#         elif hive[i].role == 'S':
-#             scout(hive[i], table)
-#             hive[i].role = 'F'
-#     # after processing all bees, set worst performer to scout
-#     hive[worst_bee].role = 'S'
-#     return best_distance, best_path
-
-def overlooker(hive, distances, paths, scout_percentage):
-    """
-    Overlooker chooses best results,
-    assigns new bee with least promising path to be a scout.
-    """
-    min_distance = min(distances)
-    min_index = distances.index(min_distance)
-
-    # get new scout bee indices
-    scout_num = int(scout_percentage * len(distances))
-    sort_distances = list(distances)
-    sort_distances.sort()
-    scouts = sort_distances[-scout_num - 1:]
-    for scout in scouts:
-        i = distances.index(scout)
-        hive[i].role = 'S'
-    return min_distance, min_index
-
 
 def recruit(hive, best_distance, best_path, table):
+    """
+    Recruits onlooker bees to iterate on best soluction so far.
+    Returns updated best_distance, best_path.
+    """
     for i in range(0, len(hive)):
         if hive[i].role == 'O':
             new_path = mutate_path(best_path)
@@ -245,52 +182,56 @@ def recruit(hive, best_distance, best_path, table):
 
 
 def print_details(cycle, path, distance, bee):
+    """
+    Prints cycle details to console.
+    """
     print("CYCLE: {}".format(cycle))
     print("PATH: {}".format(path))
     print("DISTANCE: {}".format(distance))
     print("BEE: {}".format(bee))
     print("\n")
 
-def write_details_to_str(cycle, path, distance, bee):
-    detail_str = "{},{},{},{}".format(cycle, path, distance, bee)
-    return detail_str
 
 def make_csv(data, file_name):
     """
     Writes data to csv file
     """
-    with open(file_name, "a") as f:
+    with open(file_name, 'a') as f:
         writer = csv.writer(f)
         writer.writerow(data)
     f.close()
 
 
 def main():
-    data = read_data_from_csv("data/data10.csv")
-    # data = read_data_from_csv("data/data11.csv")
-    # data = read_data_from_csv("data15.csv")
-    # data = read_data_from_csv("data20.csv")
-
-    # data = read_data_from_csv("sahara.csv")
-
-    table = make_distance_table(data)
-    population = 60
+    # Control parameters
+    population = 180
     forager_percent = 0.5
     onlooker_percent = 0.5
     role_percent = [onlooker_percent, forager_percent]
-    scout_percent = 0.0
+    scout_percent = 0.2
     scout_count = math.ceil(population * scout_percent)
+    forager_limit = 500
+    cycle_limit = 2500
+    cycle = 1
 
+    # Data source
+    # data = read_data_from_csv("data/data_10.csv")
+    # data = read_data_from_csv("data/data_11.csv")
+    data = read_data_from_csv("data/data_12.csv")
+
+    # Global vars
+    best_distance = sys.maxsize
+    best_path = []
+    result = ()
+    # result_file = "results/{}_nodes/results_{}_nodes_{}_bees_{}_scouts_{}_cycles_{}_R_{}_F.csv".format(len(data), len(data), population, scout_count, cycle_limit, onlooker_percent, forager_percent)
+    # result_file = "results/{}_nodes/results_{}_nodes_{}_bees_{}_scouts_{}_cycles.csv".format(len(data), len(data), population, scout_count, cycle_limit, onlooker_percent, forager_percent)
+    result_file = "results/{}_nodes/results_{}_nodes_{}_bees_{}_scouts_{}_cycles_{}_forager_limit.csv".format(len(data), len(data), population, scout_count, cycle_limit, forager_limit)
+
+    # Initialization
+    table = make_distance_table(data)
     hive = initialize_hive(population, data)
     assign_roles(hive, role_percent, table)
 
-    best_distance = sys.maxsize
-    best_path = []
-    forager_limit = 100
-    cycle_limit = 2500
-    cycle = 1
-    result = ()
-    result_file = "results/results_{}_nodes_{}_bees_{}_scouts_{}_cycles.csv".format(len(data), population, scout_count, cycle_limit)
 
     while cycle < cycle_limit:
         waggle_distance, waggle_path = waggle(hive, best_distance, table, forager_limit, scout_count)
@@ -312,7 +253,7 @@ def main():
 
         cycle += 1
 
-    print(result)
+    # print(result)
 
     make_csv(result, result_file)
 
