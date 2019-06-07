@@ -23,7 +23,5 @@ class testBeesMethods(unittest.TestCase):
         self.assertEqual(distance, expected_distance)
 
 
-
-
 if __name__ == '__main__':
     unittest.main()
