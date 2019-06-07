@@ -20,7 +20,7 @@ class Bee:
 
 def read_data_from_csv(file_name):
     """
-    Returns data read from file
+    Returns data read from file.
     """
     data_list = []
     with open(file_name) as f:
@@ -31,14 +31,14 @@ def read_data_from_csv(file_name):
 
 def get_distance_between_nodes(n1, n2):
     """
-    Calculates the Euclidean distance between two nodes
+    Calculates the Euclidean distance between two nodes.
     """
     return distance.euclidean(n1, n2)
 
 
 def make_distance_table(data_list):
     """
-    Creates a table that stores distance between every pair of nodes
+    Creates a table that stores distance between every pair of nodes.
     """
     length = len(data_list)
     table = [[get_distance_between_nodes(
@@ -49,8 +49,8 @@ def make_distance_table(data_list):
 
 def get_total_distance_of_path(path, table):
     """
-    Calculates the total distance of an individual bee's path
-    Terminates at starting node to complete cycle
+    Calculates the total distance of an individual bee's path.
+    Terminates at starting node to complete cycle.
     """
     # Creates a copy of path, puts head at end of list.
     # Zip lists to create pairs of neighbor coords,
@@ -66,8 +66,8 @@ def get_total_distance_of_path(path, table):
 
 def initialize_hive(population, data):
     """
-    Initializes a hive and populates it with bees
-    Bees will have a randomized path attribute
+    Initializes a hive and populates it with bees.
+    Bees will have a randomized path attribute.
     """
     path = [x[0] for x in data]
     hive = [Bee(path) for i in range (0, population)]
@@ -96,9 +96,9 @@ def assign_roles(hive, role_percentiles, table):
 
 def mutate_path(path):
     """
-    Gets a random index 0 to next to last element
+    Gets a random index 0 to next to last element.
     Copies path, swaps two nodes, compares distance.
-    Returns mutated path
+    Returns mutated path.
     """
     # - will go out of range if last element is chosen.
     random_idx = random.randint(0, len(path) - 2)
@@ -109,7 +109,7 @@ def mutate_path(path):
 def forage(bee, table, limit):
     """
     Worker bee behavior, iteratively refines a potential shortest path
-    by swapping randomly selected neighbor indices
+    by swapping randomly selected neighbor indices.
     """
     new_path = mutate_path(bee.path)
     new_distance = get_total_distance_of_path(new_path, table)
@@ -127,8 +127,8 @@ def forage(bee, table, limit):
 
 def scout(bee, table):
     """
-    Scout bee behavior, abandons unsuccessful path for new random path
-    Resets role to forager
+    Scout bee behavior, abandons unsuccessful path for new random path.
+    Resets role to forager.
     """
     new_path = list(bee.path)
     random.shuffle(new_path)
@@ -194,7 +194,7 @@ def print_details(cycle, path, distance, bee):
 
 def make_csv(data, file_name):
     """
-    Writes data to csv file
+    Writes data to csv file.
     """
     with open(file_name, 'a') as f:
         writer = csv.writer(f)
@@ -262,4 +262,5 @@ def main():
 if __name__ == '__main__':
     for i in range (0, 100):
         main()
+
     # main()

@@ -68,7 +68,8 @@ def get_accuracy_count(data_list, optimal_distance):
 def get_bee_count(data_list):
     """
     Processes data list from file to find bee count.
-    Returns #foragers, # recruits per test run.
+    Returns # foragers, and # recruits that found the
+    best path per test run.
     """
     count = sum(1 for i in data_list if "F\n" in i)
     return count, len(data_list) - count
@@ -101,7 +102,7 @@ def gather_results(data, optimal_distance):
 
 def make_results_file(file_name, result_list):
     """
-    Writes data to csv file
+    Writes data to csv file.
     """
     with open(file_name, 'a') as f:
         writer = csv.writer(f)
